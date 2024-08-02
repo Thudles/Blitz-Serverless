@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  IndexFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: index/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+
+  RedirectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: redirect/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Events:
+        GoodbyeWorld:
+          Type: Api
+          Properties:
+            Path: /redirect
+            Method: ANY
+
+  FreindlistFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: friend_list/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Events:
+        GreetUser:
+          Type: Api
+          Properties:
+            Path: /friendlist
+            Method: ANY
+
+Outputs:
+  IndexdApi:
+    Description: "API Gateway endpoint URL for Prod stage for Index function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  IndexFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt IndexFunction.Arn
+
+  RedirectApi:
+    Description: "API Gateway endpoint URL for Prod stage for Redirect function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/redirect/"
+  RedirectdFunction:
+    Description: "Goodbye World Lambda Function ARN"
+    Value: !GetAtt GoodbyeWorldFunction.Arn
+
+  FreindlistApi:
+    Description: "API Gateway endpoint URL for Prod stage for Freindlist function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/freindlist/"
+  FreindlistFunction:
+    Description: "Greet User Lambda Function ARN"
+    Value: !GetAtt GreetUserFunction.Arn

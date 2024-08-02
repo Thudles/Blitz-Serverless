@@ -1,0 +1,4 @@
+boto3==1.26.7
+spotipy==2.22.0
+execjs==2.7.0
+requests==2.31.0
