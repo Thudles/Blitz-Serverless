@@ -2,9 +2,12 @@ import json
 import boto3
 from spotipy.oauth2 import SpotifyOAuth
 
+AWS_Region = "us-east-1"
+ssm_client = boto3.client("ssm", region_name=AWS_Region)
+
 def lambda_handler(event, context):
-    CLIENT_ID = 'a080d421c6ab4b699ba470cb9d43f2d1'
-    CLIENT_SECRET = 'dd52e8e1a1d8400a8779dbddf7da1c3e'
+    CLIENT_ID = ssm_client.get_parameter(Name = "/spotifyapp/client_id", WithDecreption= True)
+    CLIENT_SECRET = ssm_client.get_parameter(Name = "/spotifyapp/client_secret", WithDecreption= True)
     REDIRECT_URI = 'YOUR_API_GATEWAY_URL/redirect'  # Replace with your API Gateway URL
 
     sp_oauth = SpotifyOAuth(

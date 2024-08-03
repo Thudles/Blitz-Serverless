@@ -9,6 +9,13 @@ from spotipy.oauth2 import SpotifyOAuth
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('SpotifyTokens')
 
+AWS_Region = "us-east-1"
+ssm_client = boto3.client("ssm", region_name=AWS_Region)
+
+CLIENT_ID = ssm_client.get_parameter(Name = "/spotifyapp/client_id", WithDecreption= True)
+CLIENT_SECRET = ssm_client.get_parameter(Name = "/spotifyapp/client_secret", WithDecreption= True)
+REDIRECT_URI = 'YOUR_API_GATEWAY_URL/redirect'  # Replace with your API Gateway URL
+
 def store_token(user_id, token_info):
     try:
         table.put_item(
@@ -19,12 +26,10 @@ def store_token(user_id, token_info):
                 'expires_at': int(time.time()) + token_info['expires_in']
             }
         )
-    except ClientError as e:
-        print(e.response['Error']['Message'])
+    except:
+        return None
 
 def get_token(user_id):
-    CLIENT_ID = 'a080d421c6ab4b699ba470cb9d43f2d1'
-    CLIENT_SECRET = 'dd52e8e1a1d8400a8779dbddf7da1c3e'
     
     try:
         response = table.get_item(
@@ -57,8 +62,8 @@ def get_token(user_id):
         
         return token_info
         
-    except ClientError as e:
-        print(e.response['Error']['Message'])
+    except:
+        print("e.response['Error']['Message']")
         return None
 
 
