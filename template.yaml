@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: A serverless Spotify playlist manager using AWS Lambda, API Gateway, and DynamoDB.
+
+Resources:
+  # DynamoDB Table
+  UserTokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: YourDynamoDBTableName
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  # Lambda function for login
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: login.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./login # Path to the directory containing your login.py
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTokensTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+
+  # Lambda function for redirect page
+  RedirectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: redirect_page.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./redirect_page # Path to the directory containing your redirect_page.py
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTokensTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /redirect
+            Method: get
+
+  # Lambda function for creating friends playlist
+  FriendsPlaylistFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: friends_playlist.lambda_handler
+      Runtime: python3.8
+      CodeUri: ./friends_playlist # Path to the directory containing your friends_playlist.py
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTokensTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /friendsPlaylist
+            Method: get
+
+  # API Gateway
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  UserTokensTableName:
+    Description: "DynamoDB Table Name"
+    Value: !Ref UserTokensTable
